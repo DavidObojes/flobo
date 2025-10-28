@@ -1,31 +1,30 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import api from "./api/api.js";
-import {Logger} from "./middleware/Logger.js";
+import api from './api/api.js';
+import { Logger } from './middleware/Logger.js';
 
 const app = express();
 const port = 3000;
 
-// defining __dirname is only required in module-js
-// in common-js it is predefined and always available
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const distPath = path.join(__dirname, '..', 'dist'); // ✅ absoluter Pfad
 
-//API Routes
-app.use('/api',Logger,api)
-
-//Serve Static Files from Build ("root/dist")
-app.use(express.static('dist'));
-
-//JSON Parser (Middleware zum Lesen von JSON Bodies)
+// JSON Parser
 app.use(express.json());
 
-//Fallback to SPA if there is no server route
-app.use(function(req, res) {
-  res.sendFile(path.join(__dirname, './dist/index.html'));
+// API
+app.use('/api', Logger, api);
+
+// Static Files
+app.use(express.static(distPath)); // absoluter Pfad
+
+// SPA Fallback
+app.use((req, res) => {
+  res.sendFile(path.join(distPath, 'index.html')); // absoluter Pfad
 });
 
-// start server
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`Server running on http://localhost:${port}`);
+  console.log(`Serving static files from: ${distPath}`);
 });

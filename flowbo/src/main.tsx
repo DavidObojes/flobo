@@ -10,11 +10,6 @@ import Menu from "./layout/Menu.tsx";
 import User from "./pages/User.tsx";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <App />,
-    errorElement: <NotFound />
-  },
     {
     path: "/",
     element: <Menu />,

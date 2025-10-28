@@ -25,11 +25,12 @@ const catData = [{
 //Niederlage: +2–3 XP (optional für Balance)
 //Spezielle Aktionen: +1–5 XP
 
-
+//Get all Cats
 router.get('/', (req, res, next) => {
   res.json(catData).status(200).send()
 })
 
+//Get Single Cat
 router.get('/:id', (req, res, next) => {
   const cat = catData.find(c => c.id === req.params.id)
   if(cat) {
@@ -38,6 +39,20 @@ router.get('/:id', (req, res, next) => {
   else {
     res.status(403).send()
   }
+})
+
+//Create Single Cat
+router.post('/', (req, res, next) => {
+
+  const imageUrl = req.body.url
+  console.log(req.body.url)
+
+  //HIER WIRD DAS Katzenobjekt erstellt
+  //cat = new Cat(<PARAMETERS>)
+
+  //Die Katze wird dann zurück an das FE gesendet
+  res.send({url: imageUrl,status: 201})
+
 })
 
 export default router;
