@@ -7,6 +7,7 @@ const CAT_URL = "https://cataas.com/cat?json=true"
 export const CatGenerator = () => {
 
   const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
 
   const getRandomCatImage = async () => {
     try {
@@ -38,10 +39,22 @@ export const CatGenerator = () => {
     const data = await res.json();
     console.log(data);
 
+    //Set Image URL
+    setImageUrl(data.url)
+
     setLoading(false)
   }
 
   return (<>
+
+    {imageUrl &&
+      <img
+      src={imageUrl}
+      alt="Your generated Cat"
+      width="800"
+      height="800"
+      />
+    }
 
     <Button
         onClick={generateCat}
