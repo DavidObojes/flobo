@@ -1,5 +1,6 @@
 // API - Cat
 import express from 'express';
+import Cat from "../classes/Cat.js";
 
 const router = express.Router();
 
@@ -45,10 +46,18 @@ router.get('/:id', (req, res, next) => {
 router.post('/', (req, res, next) => {
 
   const imageUrl = req.body.url
-  console.log(req.body.url)
+  //console.log(req.body.url)
+
+  const userId = "123"
+  const generatedName = "MaunziPaunz"
+  const stats = Cat.generateRandomStats()
+
+  console.log("Stats:",stats)
 
   //HIER WIRD DAS Katzenobjekt erstellt
-  //cat = new Cat(<PARAMETERS>)
+  const cat = new Cat(userId, generatedName, imageUrl,stats)
+
+  console.log("Instance of Cat:",cat)
 
   //Die Katze wird dann zurück an das FE gesendet
   res.send({url: imageUrl,status: 201})
