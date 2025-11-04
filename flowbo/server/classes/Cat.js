@@ -41,7 +41,7 @@ export default class Cat {
     while (randomPoints > 0) {
       let randomKey = keys[Math.floor(Math.random() * keys.length)]
       stats[randomKey]++
-      console.log(randomkey + ": " + stats[randomKey])
+      console.log(randomKey + ": " + stats[randomKey])
 
       randomPoints--
     }
