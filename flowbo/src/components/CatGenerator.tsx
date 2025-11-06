@@ -2,12 +2,31 @@ import {Button, CircularProgress} from "@mui/material";
 import {useState} from "react";
 
 
+
 const CAT_URL = "https://cataas.com/cat?json=true"
 
 export const CatGenerator = () => {
 
+
+    type CatStats = {
+      clawPower: number;
+      zoomSpeed: number;
+      furDensity: number;
+      cuteness: number;
+      chaosLuck: number;
+    };
+
+    type CatResponse = {
+      url: string;
+      name: string;
+      stats: CatStats;
+      status: number;
+    };
+
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [catData, setCatData] = useState<CatResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const getRandomCatImage = async () => {
     try {
@@ -22,6 +41,9 @@ export const CatGenerator = () => {
 
   const generateCat = async () => {
     setLoading(true)
+    setError(null);
+
+    try{
 
     const image = await getRandomCatImage()
     console.log(image)
@@ -36,14 +58,27 @@ export const CatGenerator = () => {
       })
     });
 
-    const data = await res.json();
-    console.log(data);
+    if (!res.ok) {
+        // z.B. 500 vom Backend
+        const msg = await res.text();
+        throw new Error(`Server returned ${res.status}: ${msg}`);
+      }
+
+    const dataStats: CatResponse = await res.json();
+    setCatData(dataStats);
+    setImageUrl(dataStats.url);
 
     //Set Image URL
-    setImageUrl(data.url)
+    setImageUrl(dataStats.url);
+    console.log("Generated name:", dataStats.name);
 
-    setLoading(false)
-  }
+    } catch (e: any){
+      console.error(e);
+      setError(e?.message ?? "Unknown error");
+    } finally {
+      setLoading(false)
+    }
+  };
 
   return (<>
 
@@ -55,6 +90,20 @@ export const CatGenerator = () => {
       height="800"
       />
     }
+
+    {catData && (
+        <div style={{ marginTop: "20px" }}>
+          <h1>{catData.name}</h1>
+          <h3>Stats</h3>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {Object.entries(catData.stats).map(([key, value]) => (
+              <li key={key}>
+                {key}: <strong>{value}</strong>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
     <Button
         onClick={generateCat}
@@ -68,6 +117,12 @@ export const CatGenerator = () => {
     >
       {loading ? "Generiert…" : "Katze generieren"}
     </Button>
+
+    {error && (
+        <p style={{ color: "tomato", marginTop: 12 }}>
+          Fehler: {error}
+        </p>
+    )}
 
   </>)
 }

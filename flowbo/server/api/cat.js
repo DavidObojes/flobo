@@ -1,6 +1,7 @@
 // API - Cat
 import express from 'express';
 import Cat from "../classes/Cat.js";
+import { generateRandomCatName } from "../utils/generateCatName.js";
 
 const router = express.Router();
 
@@ -42,26 +43,34 @@ router.get('/:id', (req, res, next) => {
   }
 })
 
+
+
 //Create Single Cat
 router.post('/', (req, res, next) => {
 
-  const imageUrl = req.body.url
-  //console.log(req.body.url)
+  try {
 
-  const userId = "123"
-  const generatedName = "MaunziPaunz"
-  const stats = Cat.generateRandomStats()
+      const imageUrl = req.body.url
+      //console.log(req.body.url)
 
-  console.log("Stats:",stats)
+      const userId = "123"
+      const generatedName = generateRandomCatName()
+      const stats = Cat.generateRandomStats()
 
-  //HIER WIRD DAS Katzenobjekt erstellt
-  const cat = new Cat(userId, generatedName, imageUrl,stats)
+      console.log("Stats:",stats)
 
-  console.log("Instance of Cat:",cat)
+      //HIER WIRD DAS Katzenobjekt erstellt
+      const cat = new Cat(userId, generatedName, imageUrl,stats)
 
-  //Die Katze wird dann zurück an das FE gesendet
-  res.send({url: imageUrl,status: 201})
+      console.log("Instance of Cat:",cat)
 
-})
+      //Die Katze wird dann zurück an das FE gesendet
+      res.send({url: imageUrl, name: generatedName, stats, status: 201})
+  }catch (err){
+      console.error(err);
+      return res.status(500).json({ error: "Cat generation failed" });
+  }
+
+});
 
 export default router;
