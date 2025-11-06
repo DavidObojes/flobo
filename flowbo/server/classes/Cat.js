@@ -25,27 +25,4 @@ export default class Cat {
     this.wins = wins
     this.losses = losses
   }
-
-
- static generateRandomStats() {
-
-    let randomPoints = 15
-
-    const keys = ["clawPower","zoomSpeed","furDensity","cuteness","chaosLuck"]
-    const stats = {}
-
-    for (let key of keys) {
-      stats[key] = 0;
-    }
-
-    while (randomPoints > 0) {
-      let randomKey = keys[Math.floor(Math.random() * keys.length)]
-      stats[randomKey]++
-      console.log(randomKey + ": " + stats[randomKey])
-
-      randomPoints--
-    }
-
-    return stats;
-  }
 }

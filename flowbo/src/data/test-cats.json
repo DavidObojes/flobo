@@ -1,0 +1,50 @@
+[
+  {
+    "userId": "user_001",
+    "name": "Sir Kratzalot",
+    "imageUrl": "https://placekitten.com/120/120",
+    "stats": {
+      "clawPower": 68,
+      "zoomSpeed": 52,
+      "furDensity": 47,
+      "cuteness": 90,
+      "chaosLuck": 33
+    },
+    "xp": 450,
+    "level": 5,
+    "wins": 12,
+    "losses": 4
+  },
+  {
+    "userId": "user_002",
+    "name": "Luna von Fluff",
+    "imageUrl": "https://placekitten.com/121/121",
+    "stats": {
+      "clawPower": 40,
+      "zoomSpeed": 85,
+      "furDensity": 30,
+      "cuteness": 95,
+      "chaosLuck": 72
+    },
+    "xp": 890,
+    "level": 8,
+    "wins": 20,
+    "losses": 3
+  },
+  {
+    "userId": "user_003",
+    "name": "Mr. Chaos",
+    "imageUrl": "https://placekitten.com/122/122",
+    "stats": {
+      "clawPower": 55,
+      "zoomSpeed": 60,
+      "furDensity": 65,
+      "cuteness": 40,
+      "chaosLuck": 88
+    },
+    "xp": 320,
+    "level": 4,
+    "wins": 7,
+    "losses": 9
+  }
+]
