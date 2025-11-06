@@ -1,5 +1,3 @@
-
-
 // Function to generate random stats
 import type {CatStats} from "../types/cat.ts";
 
@@ -21,7 +19,6 @@ export default function generateRandomStats(): CatStats {
   while (randomPoints > 0) {
     const randomKey = keys[Math.floor(Math.random() * keys.length)];
     stats[randomKey]++;
-    console.log(randomKey + ": " + stats[randomKey]);
     randomPoints--;
   }
 

@@ -3,6 +3,7 @@ import {useState} from "react";
 import type {CatStats} from "../types/cat.ts";
 import generateRandomStats from "../utils/generateRandomStats.ts";
 import {generateRandomCatName} from "../utils/generateRandomCatName.ts";
+import {generateRandomUserId} from "../utils/generateRandomUserId.ts";
 
 
 const CAT_URL = "https://cataas.com/cat?json=true"
@@ -50,7 +51,6 @@ export const CatGenerator = () => {
 
 
   const addToPack = async () => {
-    console.log("Try to add Cat")
 
     const res = await fetch("/api/cat", {
       method: "POST",
@@ -58,15 +58,25 @@ export const CatGenerator = () => {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        url: imageUrl
+        userId: generateRandomUserId(),
+        name: name,
+        url: imageUrl,
+        stats: stats,
+        xp: 0,
+        level: 1,
+        wins: 0,
+        losses: 0
       })
     });
+
 
     if (!res.ok) {
       // z.B. 500 vom Backend
       const msg = await res.text();
       throw new Error(`Server returned ${res.status}: ${msg}`);
     }
+
+    console.log("Added Cat to DB")
   }
 
   return (<>

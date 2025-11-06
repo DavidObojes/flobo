@@ -1,15 +1,22 @@
 // API - Cat
 import express from 'express';
-import Cat from "../classes/Cat.js";
 
 const router = express.Router();
 
 //Get all Cats
-router.get('/', (req, res, next) => {
-  res.json(catData).status(200).send()
-})
+router.get('/', async (req, res) => {
+  try {
+    const db = req.app.get('db'); // get reference to the db from app config
+    const users = await db.collection('cats').find({}).toArray();
 
-//Get Single Cat
+    res.json(users);
+  } catch(err) {
+    console.error(err);
+    res.status(500).send();
+  }
+});
+
+//Get Single Cat (not implemented)
 router.get('/:id', (req, res, next) => {
   const cat = catData.find(c => c.id === req.params.id)
   if(cat) {
@@ -21,27 +28,26 @@ router.get('/:id', (req, res, next) => {
 })
 
 //Create Single Cat
-router.post('/', (req, res, next) => {
-
+router.post('/', async (req, res) => {
   try {
+    const db = req.app.get('db');
+    const insertion = await db.collection('cats').insertOne(req.body);
+    if (insertion.acknowledged) {
+      const user = await db.collection('cats')
+        .findOne({ _id: insertion.insertedId });
 
-      const imageUrl = req.body.url
-      //const userId = req.body.userId
-      //const name = req.body.name
-      //const stats = req.body.stats
-
-      //HIER WIRD DAS Katzenobjekt erstellt
-      //const cat = new Cat(userId, name, imageUrl,stats)
-
-      //console.log("Instance of Cat:",cat)
-
-      //Erfolgreich in der DB angelegt
-      res.send({msg:"Erfolgreich erstellt:" + {imageUrl}, status: 201})
-  }catch (err){
-      console.error(err);
-      return res.status(500).json({ error: "Cat generation failed" });
+      if (user) {
+        res.status(201).json(user);
+      } else {
+        res.status(404).send();
+      }
+    } else {
+      res.status(500).send();
+    }
+  } catch(err) {
+    console.error(err);
+    res.status(500).send();
   }
-
 });
 
 export default router;
