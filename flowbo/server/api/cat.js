@@ -1,38 +1,22 @@
 // API - Cat
 import express from 'express';
-import Cat from "../classes/Cat.js";
-import { generateRandomCatName } from "../utils/generateCatName.js";
 
 const router = express.Router();
 
-const catData = [{
-  id: '1',
-  userId: 'a', //foreign key
-  name: 'MaunziPaunz',
-  url: 'https://cataas.com/cat/9e1xDB4LmMl0v6BO?position=center',
-  stats: {
-    clawPower: 7,   //Attack damage
-    zoomSpeed: 9,   //Dodge / Crit chance
-    furDensity: 6,  //Defense / Armor
-    cuteness: 10,   //Debuff enemy / morale
-    chaosLuck: 4    //randomly modifies another stat per round (the higher the better)
-  },
-  xp: '0',
-  level: '1',
-  wins: '3',
-  losses: '5'
-}]
-
-//Sieg: +10 XP
-//Niederlage: +2–3 XP (optional für Balance)
-//Spezielle Aktionen: +1–5 XP
-
 //Get all Cats
-router.get('/', (req, res, next) => {
-  res.json(catData).status(200).send()
-})
+router.get('/', async (req, res) => {
+  try {
+    const db = req.app.get('db'); // get reference to the db from app config
+    const users = await db.collection('cats').find({}).toArray();
 
-//Get Single Cat
+    res.json(users);
+  } catch(err) {
+    console.error(err);
+    res.status(500).send();
+  }
+});
+
+//Get Single Cat (not implemented)
 router.get('/:id', (req, res, next) => {
   const cat = catData.find(c => c.id === req.params.id)
   if(cat) {
@@ -43,34 +27,27 @@ router.get('/:id', (req, res, next) => {
   }
 })
 
-
-
 //Create Single Cat
-router.post('/', (req, res, next) => {
-
+router.post('/', async (req, res) => {
   try {
+    const db = req.app.get('db');
+    const insertion = await db.collection('cats').insertOne(req.body);
+    if (insertion.acknowledged) {
+      const user = await db.collection('cats')
+        .findOne({ _id: insertion.insertedId });
 
-      const imageUrl = req.body.url
-      //console.log(req.body.url)
-
-      const userId = "123"
-      const generatedName = generateRandomCatName()
-      const stats = Cat.generateRandomStats()
-
-      console.log("Stats:",stats)
-
-      //HIER WIRD DAS Katzenobjekt erstellt
-      const cat = new Cat(userId, generatedName, imageUrl,stats)
-
-      console.log("Instance of Cat:",cat)
-
-      //Die Katze wird dann zurück an das FE gesendet
-      res.send({url: imageUrl, name: generatedName, stats, status: 201})
-  }catch (err){
-      console.error(err);
-      return res.status(500).json({ error: "Cat generation failed" });
+      if (user) {
+        res.status(201).json(user);
+      } else {
+        res.status(404).send();
+      }
+    } else {
+      res.status(500).send();
+    }
+  } catch(err) {
+    console.error(err);
+    res.status(500).send();
   }
-
 });
 
 export default router;

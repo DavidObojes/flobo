@@ -1,11 +1,11 @@
 import './App.css'
-import {CatGenerator} from "./components/CatGenerator.tsx";
+import CatBoard from "./components/CatBoard.tsx";
 
 function App() {
 
   return (
     <>
-      <CatGenerator />
+     <CatBoard />
     </>
   )
 }
