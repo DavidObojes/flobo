@@ -4,11 +4,12 @@ import type {CatStats} from "../types/cat.ts";
 import generateRandomStats from "../utils/generateRandomStats.ts";
 import {generateRandomCatName} from "../utils/generateRandomCatName.ts";
 import {generateRandomUserId} from "../utils/generateRandomUserId.ts";
+import type { Cat } from "../types/cat";
 
 
 const CAT_URL = "https://cataas.com/cat?json=true"
 
-export const CatGenerator = () => {
+export const CatGenerator = ({ onGenerated }: { onGenerated?: (cat: Cat) => void }) => {
 
   const [loading, setLoading] = useState(false);
   const [catGenerated, setCatGenerated] = useState(false);
@@ -34,11 +35,24 @@ export const CatGenerator = () => {
     try {
 
       const image = await getRandomCatImage()
+      const theName = generateRandomCatName();
+      const theStats = generateRandomStats();
 
       //Set States
       setImageUrl(image);
-      setName(generateRandomCatName())
-      setStats(generateRandomStats())
+      setName(theName)
+      setStats(theStats)
+
+      onGenerated?.({
+      userId: generateRandomUserId(),
+      name: theName,
+      imageUrl: image,            // <— konsistent
+      stats: theStats,
+      xp: 0,
+      level: 1,
+      wins: 0,
+      losses: 0
+      });
 
     } catch (e: any) {
       console.error(e);
@@ -60,7 +74,7 @@ export const CatGenerator = () => {
       body: JSON.stringify({
         userId: generateRandomUserId(),
         name: name,
-        url: imageUrl,
+        imageUrl: imageUrl,
         stats: stats,
         xp: 0,
         level: 1,
