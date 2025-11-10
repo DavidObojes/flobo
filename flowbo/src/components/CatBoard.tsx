@@ -41,14 +41,38 @@ export default function CatBoard() {
     getCatData();
   }, []);
 
+  const levelUpCat = async (userId: string) => {
+    const res = await fetch(`/api/cat/${userId}/level`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ delta: 1, incWin: true })
+    });
+    if (!res.ok) throw new Error('Level up failed');
+    return res.json(); // updated cat
+  };
+
+  const replaceCatInState = (updated: Cat) => {
+    setCats(prev => prev.map(c => c.userId === updated.userId ? updated : c));
+    setMyCat(prev => (prev && prev.userId === updated.userId ? updated : prev));
+    setOpponent(prev => (prev && prev.userId === updated.userId ? updated : prev));
+  };
+
   const power = (c: Cat) =>
     (c.stats.clawPower + c.stats.zoomSpeed + c.stats.furDensity + c.stats.cuteness + c.stats.chaosLuck) + Math.random() * 10;
 
 
-  const startFight = () => {
+  const startFight = async () => {
     if (!myCat || !opponent) return;
-    const winner = power(myCat) >= power(opponent) ? myCat.name : opponent.name;
-    setResult(`${winner} wins!`);
+  const winner = power(myCat) >= power(opponent) ? myCat : opponent;
+
+  try {
+    const updatedWinner = await levelUpCat(winner.userId);
+    replaceCatInState(updatedWinner);
+    setResult(`${updatedWinner.name} wins! Lv.${updatedWinner.level}`);
+  } catch (e) {
+    console.error(e);
+    setResult('Konnte Level-Up nicht speichern.');
+  }
    };
 
   const closeFight = () => {
@@ -63,6 +87,8 @@ export default function CatBoard() {
     setOpponent(opp);
     setFightOpen(true);
   };
+
+  
 
   return (
       <div className="min-h-screen bg-gray-50 p-6">

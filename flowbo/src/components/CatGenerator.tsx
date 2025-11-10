@@ -13,10 +13,8 @@ export const CatGenerator = ({ onGenerated }: { onGenerated?: (cat: Cat) => void
 
   const [loading, setLoading] = useState(false);
   const [catGenerated, setCatGenerated] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
-  const [name, setName] = useState("");
-  const [stats, setStats] = useState<CatStats>()
   const [error, setError] = useState<string | null>(null);
+  const [pendingCat, setPendingCat] = useState<Cat | null>(null);
 
   const getRandomCatImage = async () => {
     try {
@@ -35,131 +33,118 @@ export const CatGenerator = ({ onGenerated }: { onGenerated?: (cat: Cat) => void
     try {
 
       const image = await getRandomCatImage()
-      const theName = generateRandomCatName();
-      const theStats = generateRandomStats();
+      const newCat: Cat = {
+        userId: generateRandomUserId(),   
+        name: generateRandomCatName(),
+        imageUrl: image,
+        stats: generateRandomStats(),
+        xp: 0,
+        level: 1,
+        wins: 0,
+        losses: 0,
+      };
 
-      //Set States
-      setImageUrl(image);
-      setName(theName)
-      setStats(theStats)
-
-      onGenerated?.({
-      userId: generateRandomUserId(),
-      name: theName,
-      imageUrl: image,            // <— konsistent
-      stats: theStats,
-      xp: 0,
-      level: 1,
-      wins: 0,
-      losses: 0
-      });
-
+        setPendingCat(newCat);
+        onGenerated?.(newCat);
+        return newCat;
     } catch (e: any) {
-      console.error(e);
-      setError(e?.message ?? "Unknown error");
+        console.error(e);
+        setError(e?.message ?? "Unknown error");
     } finally {
-      setLoading(false)
-      setCatGenerated(true)
+        setLoading(false)
+        setCatGenerated(true)
     }
   };
 
 
-  const addToPack = async () => {
+  const addToPack = async (cat: Cat) => {
 
     const res = await fetch("/api/cat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        userId: generateRandomUserId(),
-        name: name,
-        imageUrl: imageUrl,
-        stats: stats,
-        xp: 0,
-        level: 1,
-        wins: 0,
-        losses: 0
-      })
+      body: JSON.stringify(cat)
     });
 
 
     if (!res.ok) {
-      // z.B. 500 vom Backend
       const msg = await res.text();
       throw new Error(`Server returned ${res.status}: ${msg}`);
     }
-
+    
+    const saved = await res.json();
+    onGenerated?.(saved);
     console.log("Added Cat to DB")
   }
 
-  return (<>
-
-    <Avatar
+    return (
+    <>
+      <Avatar
         alt="Generated Cat"
-        src={loading ? "" : imageUrl || ""}
+        src={loading ? "" : pendingCat?.imageUrl || ""}
         sx={{
           width: "300px",
           height: "300px",
-          objectFit: "cover", // scale image to fill
+          objectFit: "cover",
           opacity: loading ? 0.5 : 1,
-          transition: "opacity 0.3s ease",
+          transition: "opacity 0.5s ease",
         }}
-    >
-      {loading && <CircularProgress size={80}/>}
-    </Avatar>
+      >
+        {loading && <CircularProgress size={80} />}
+      </Avatar>
 
-    {/* Show Generated Cat */}
-    {catGenerated && (
-        <div style={{marginTop: "20px"}}>
-          <h1>{name}</h1>
-          {stats && (
-              <>
-                <h3>Stats</h3>
-                <ul style={{listStyle: "none", padding: 0}}>
-                  {(Object.keys(stats) as (keyof CatStats)[]).map((key) => (
-                      <li key={key}>
-                        {key}: <strong>{stats[key]}</strong>
-                      </li>
-                  ))}
-                </ul>
-              </>
-          )}
+      {/* Show Generated Cat */}
+      {catGenerated && pendingCat && (
+        <div style={{ marginTop: "20px" }}>
+          <h1>{pendingCat.name}</h1>
+
+          <h3>Stats</h3>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {(Object.keys(pendingCat.stats) as (keyof CatStats)[]).map((key) => (
+              <li key={key}>
+                {key}: <strong>{pendingCat.stats[key]}</strong>
+              </li>
+            ))}
+          </ul>
 
           <Button
-              onClick={addToPack}
-              type="submit"
-              fullWidth
-              size="large"
-              variant="contained"
-              disabled={loading}
-              startIcon={loading ? <CircularProgress size={18}/> : null}
-              sx={{mt: 2}}
+            //onClick={addToPack}
+            type="submit"
+            fullWidth
+            size="large"
+            variant="contained"
+            disabled={loading || !pendingCat}
+            startIcon={loading ? <CircularProgress size={18} /> : null}
+            sx={{ mt: 2 }}
           >
             Zum Rudel hinzufügen
           </Button>
         </div>
-    )}
+      )}
 
-     {/* Generate a new Cat */}
-    <Button
-        onClick={generateCat}
+      {/* Generate a new Cat */}
+      <Button
+        onClick={async () => {
+          const cat = await generateCat();
+          if (cat) await addToPack(cat);
+        }}
         type="submit"
         fullWidth
         size="large"
         variant="contained"
         disabled={loading}
-        startIcon={loading ? <CircularProgress size={18}/> : null}
-        sx={{mt: 2}}
-    >
-      {loading ? "Generiert…" : "Katze generieren"}
-    </Button>
+        startIcon={loading ? <CircularProgress size={18} /> : null}
+        sx={{ mt: 2 }}
+      >
+        {loading ? "Generiert…" : "Katze generieren"}
+      </Button>
 
-    {error && (
-        <p style={{color: "tomato", marginTop: 12}}>
+      {error && (
+        <p style={{ color: "tomato", marginTop: 12 }}>
           Fehler: {error}
         </p>
-    )}
-
-  </>)
+      )}
+    </>
+  );
 }
