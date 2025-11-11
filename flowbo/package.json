@@ -16,14 +16,17 @@
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
     "@tailwindcss/vite": "^4.1.14",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-oauth-server": "^2.0.0",
     "framer-motion": "^12.23.24",
     "mongodb": "^6.20.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.4",
-    "tailwindcss": "^4.1.14"
+    "tailwindcss": "^4.1.14",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

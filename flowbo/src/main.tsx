@@ -8,6 +8,7 @@ import RegisterPage from './pages/RegisterPage.tsx';
 import NotFound from "./pages/NotFound.tsx";
 import Menu from "./layout/Menu.tsx";
 import User from "./pages/User.tsx";
+import ActivationPage from "./pages/ActivationPage.tsx";
 
 const router = createBrowserRouter([
     {
@@ -24,12 +25,20 @@ const router = createBrowserRouter([
         element: <User />,
       },
       {
+        path: "/register",
+        element: <RegisterPage />,
+      },
+      {
         path: "/login",
         element: <LoginPage />,
       },
       {
-        path: "/register",
-        element: <RegisterPage />,
+        path: "/activate/",
+        element: <ActivationPage />,
+      },
+      {
+        path: "/activate/:token",
+        element: <ActivationPage />,
       },
     ],
   },
