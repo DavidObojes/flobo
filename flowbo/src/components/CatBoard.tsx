@@ -25,10 +25,15 @@ export default function CatBoard() {
   const [opponent, setOpponent] = useState<Cat | null>(null);
   const [result, setResult] = useState<string | null>(null);
 
-   useEffect(() => {
+  useEffect(() => {
     const getCatData = async () => {
       try {
-        const response = await fetch("/api/cat");
+        const token = localStorage.getItem("access_token");
+        const response = await fetch("/api/cat", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const catsData = await response.json();
         setCats(catsData);
@@ -44,8 +49,8 @@ export default function CatBoard() {
   const levelUpCat = async (userId: string) => {
     const res = await fetch(`/api/cat/${userId}/level`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ delta: 1, incWin: true })
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({delta: 1, incWin: true})
     });
     if (!res.ok) throw new Error('Level up failed');
     return res.json(); // updated cat
@@ -58,22 +63,22 @@ export default function CatBoard() {
   };
 
   const power = (c: Cat) =>
-    (c.stats.clawPower + c.stats.zoomSpeed + c.stats.furDensity + c.stats.cuteness + c.stats.chaosLuck) + Math.random() * 10;
+      (c.stats.clawPower + c.stats.zoomSpeed + c.stats.furDensity + c.stats.cuteness + c.stats.chaosLuck) + Math.random() * 10;
 
 
   const startFight = async () => {
     if (!myCat || !opponent) return;
-  const winner = power(myCat) >= power(opponent) ? myCat : opponent;
+    const winner = power(myCat) >= power(opponent) ? myCat : opponent;
 
-  try {
-    const updatedWinner = await levelUpCat(winner.userId);
-    replaceCatInState(updatedWinner);
-    setResult(`${updatedWinner.name} wins! Lv.${updatedWinner.level}`);
-  } catch (e) {
-    console.error(e);
-    setResult('Konnte Level-Up nicht speichern.');
-  }
-   };
+    try {
+      const updatedWinner = await levelUpCat(winner.userId);
+      replaceCatInState(updatedWinner);
+      setResult(`${updatedWinner.name} wins! Lv.${updatedWinner.level}`);
+    } catch (e) {
+      console.error(e);
+      setResult('Konnte Level-Up nicht speichern.');
+    }
+  };
 
   const closeFight = () => {
     setFightOpen(false);
@@ -88,7 +93,6 @@ export default function CatBoard() {
     setFightOpen(true);
   };
 
-  
 
   return (
       <div className="min-h-screen bg-gray-50 p-6">
@@ -99,8 +103,8 @@ export default function CatBoard() {
               Katzengenerator
             </Typography>
             <CatGenerator onGenerated={(cat) => {
-              setMyCat(cat);         
-              setSelectedCat(cat);    
+              setMyCat(cat);
+              setSelectedCat(cat);
             }}/>
 
           </aside>
@@ -126,43 +130,43 @@ export default function CatBoard() {
             <Dialog open={fightOpen} onClose={closeFight} fullWidth maxWidth="sm">
               <DialogTitle>Fight!</DialogTitle>
               <DialogContent>
-                <div style={{ display: "flex", gap: 16, alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ textAlign: "center" }}>
+                <div style={{display: "flex", gap: 16, alignItems: "center", justifyContent: "space-between"}}>
+                  <div style={{textAlign: "center"}}>
                     {myCat && <>
-                      <img src={myCat.imageUrl} alt={myCat.name} style={{ width: 140, height: 140, objectFit: "cover", borderRadius: 12 }} />
+                      <img src={myCat.imageUrl} alt={myCat.name}
+                           style={{width: 140, height: 140, objectFit: "cover", borderRadius: 12}}/>
                       <Typography variant="subtitle1">{myCat.name}</Typography>
                     </>}
                   </div>
                   <Typography variant="h5">vs</Typography>
-                  <div style={{ textAlign: "center" }}>
+                  <div style={{textAlign: "center"}}>
                     {opponent && <>
-                      <img src={opponent.imageUrl} alt={opponent.name} style={{ width: 140, height: 140, objectFit: "cover", borderRadius: 12 }} />
+                      <img src={opponent.imageUrl} alt={opponent.name}
+                           style={{width: 140, height: 140, objectFit: "cover", borderRadius: 12}}/>
                       <Typography variant="subtitle1">{opponent.name}</Typography>
                     </>}
                   </div>
                 </div>
 
-                {result && <Typography variant="h6" sx={{ mt: 2 }}>{result}</Typography>}
+                {result && <Typography variant="h6" sx={{mt: 2}}>{result}</Typography>}
                 <Stack mt={2} spacing={1}>
                   {selectedCat && (
-                    <Typography variant="body2">
-                      {selectedCat.name}: HP {selectedCat.stats.clawPower} • ATK {selectedCat.stats.zoomSpeed}
-                    </Typography>
+                      <Typography variant="body2">
+                        {selectedCat.name}: HP {selectedCat.stats.clawPower} • ATK {selectedCat.stats.zoomSpeed}
+                      </Typography>
                   )}
                   {opponent && (
-                    <Typography variant="body2">
-                      {opponent.name}: HP {opponent.stats.clawPower} • ATK {opponent.stats.zoomSpeed}
-                    </Typography>
+                      <Typography variant="body2">
+                        {opponent.name}: HP {opponent.stats.clawPower} • ATK {opponent.stats.zoomSpeed}
+                      </Typography>
                   )}
                 </Stack>
               </DialogContent>
               <DialogActions>
                 {!result ? <Button onClick={startFight} variant="contained">Start fight</Button>
-                        : <Button onClick={closeFight}>Close</Button>}
+                    : <Button onClick={closeFight}>Close</Button>}
               </DialogActions>
             </Dialog>
-
-
 
 
             <CatDetail cat={selectedCat}/>

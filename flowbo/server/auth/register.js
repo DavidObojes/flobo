@@ -9,7 +9,6 @@ router.post('/', async (req, res) => {
   try {
     const db = req.app.get('db');
 
-
     // TODO: validate req.body (email)
     const email = req.body.email;
     if(!email) {

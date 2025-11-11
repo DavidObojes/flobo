@@ -34,7 +34,7 @@ export const CatGenerator = ({ onGenerated }: { onGenerated?: (cat: Cat) => void
 
       const image = await getRandomCatImage()
       const newCat: Cat = {
-        userId: generateRandomUserId(),   
+        userId: generateRandomUserId(),
         name: generateRandomCatName(),
         imageUrl: image,
         stats: generateRandomStats(),
@@ -59,10 +59,13 @@ export const CatGenerator = ({ onGenerated }: { onGenerated?: (cat: Cat) => void
 
   const addToPack = async (cat: Cat) => {
 
+    const token = localStorage.getItem("access_token");
+
     const res = await fetch("/api/cat", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // 👈 Token mitschicken
       },
       body: JSON.stringify(cat)
     });
@@ -72,7 +75,7 @@ export const CatGenerator = ({ onGenerated }: { onGenerated?: (cat: Cat) => void
       const msg = await res.text();
       throw new Error(`Server returned ${res.status}: ${msg}`);
     }
-    
+
     const saved = await res.json();
     onGenerated?.(saved);
     console.log("Added Cat to DB")
