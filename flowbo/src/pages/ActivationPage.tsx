@@ -13,9 +13,11 @@ import {
   CardContent,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 
 const ActivationPage: React.FC = () => {
+  const navigate = useNavigate();
+
   const [form, setForm] = React.useState({
     firstName: "",
     lastName: "",
@@ -23,9 +25,6 @@ const ActivationPage: React.FC = () => {
   });
 
   const {token} = useParams();
-
-  console.log(token)
-
 
   const [loading, setLoading] = React.useState(false);
   const [snack, setSnack] = React.useState<{ open: boolean; ok: boolean; message: string }>({
@@ -54,8 +53,16 @@ const ActivationPage: React.FC = () => {
       body: JSON.stringify(form)
     });
 
-    setLoading(false);
-    setSnack({open: true, ok: res.ok, message: "Dummy Message"});
+    if (!res.ok) {
+      setLoading(false);
+      setSnack({open: true, ok: false, message: "Fehler"});
+    } else {
+      setLoading(false);
+      setSnack({open: true, ok: true, message: "Erfolgreich erstellt"});
+      setTimeout(() => navigate(`/`), 1500);
+    }
+
+
   };
 
   return (<>
