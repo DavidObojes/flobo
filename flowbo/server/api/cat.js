@@ -7,9 +7,9 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const db = req.app.get('db'); // get reference to the db from app config
-    const users = await db.collection('cats').find({}).toArray();
+    const cats = await db.collection('cat').find({}).toArray();
 
-    res.json(users);
+    res.json(cats);
   } catch(err) {
     console.error(err);
     res.status(500).send();
@@ -31,13 +31,12 @@ router.get('/:id', (req, res, next) => {
 router.post('/', async (req, res) => {
   try {
     const db = req.app.get('db');
-    const insertion = await db.collection('cats').insertOne(req.body);
+    const insertion = await db.collection('cat').insertOne(req.body);
     if (insertion.acknowledged) {
-      const user = await db.collection('cats')
+      const cat = await db.collection('cat')
         .findOne({ _id: insertion.insertedId });
-
-      if (user) {
-        res.status(201).json(user);
+      if (cat) {
+        res.status(201).json(cat);
       } else {
         res.status(404).send();
       }
