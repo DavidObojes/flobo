@@ -57,6 +57,6 @@ router.post('/todo', writeAccess, async (req, res) => {
 
 // API - User Routes
 router.use('/user/', user)
-router.use('/cat/', cat);
+router.use('/cat', cat);
 
 export default router;

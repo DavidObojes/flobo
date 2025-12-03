@@ -3,7 +3,6 @@ import {useState} from "react";
 import type {CatStats} from "../types/cat.ts";
 import generateRandomStats from "../utils/generateRandomStats.ts";
 import {generateRandomCatName} from "../utils/generateRandomCatName.ts";
-import {generateRandomUserId} from "../utils/generateRandomUserId.ts";
 import type { Cat } from "../types/cat";
 
 
@@ -34,7 +33,6 @@ export const CatGenerator = ({ onGenerated }: { onGenerated?: (cat: Cat) => void
 
       const image = await getRandomCatImage()
       const newCat: Cat = {
-        userId: generateRandomUserId(),
         name: generateRandomCatName(),
         imageUrl: image,
         stats: generateRandomStats(),

@@ -46,8 +46,8 @@ export default function CatBoard() {
     getCatData();
   }, []);
 
-  const levelUpCat = async (userId: string) => {
-    const res = await fetch(`/api/cat/${userId}/level`, {
+  const levelUpCat = async (catId: string) => {
+    const res = await fetch(`/api/cat/${catId}/level`, {
       method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({delta: 1, incWin: true})
@@ -67,18 +67,19 @@ export default function CatBoard() {
 
 
   const startFight = async () => {
-    if (!myCat || !opponent) return;
-    const winner = power(myCat) >= power(opponent) ? myCat : opponent;
+  if (!myCat || !opponent) return;
+  const winner = power(myCat) >= power(opponent) ? myCat : opponent;
 
-    try {
-      const updatedWinner = await levelUpCat(winner.userId);
-      replaceCatInState(updatedWinner);
-      setResult(`${updatedWinner.name} wins! Lv.${updatedWinner.level}`);
-    } catch (e) {
-      console.error(e);
-      setResult('Konnte Level-Up nicht speichern.');
-    }
-  };
+  try {
+    if (!winner._id) throw new Error("Winner has no _id");
+    const updatedWinner = await levelUpCat(winner._id);
+    replaceCatInState(updatedWinner);
+    setResult(`${updatedWinner.name} wins! Lv.${updatedWinner.level}`);
+  } catch (e) {
+    console.error(e);
+    setResult("Konnte Level-Up nicht speichern.");
+  }
+};
 
   const closeFight = () => {
     setFightOpen(false);
@@ -86,10 +87,9 @@ export default function CatBoard() {
     setResult(null);
   };
 
-  const fight = (opponentId: string) => {
+  const fight = (opponent: Cat) => {
     console.log("Fight against another Cat...")
-    const opp = cats.find(c => c.userId === opponentId) || null;
-    setOpponent(opp);
+    setOpponent(opponent);
     setFightOpen(true);
   };
 
