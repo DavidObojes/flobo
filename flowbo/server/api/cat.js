@@ -24,16 +24,31 @@ router.get('/', async (req, res) => {
   }
 });
 
-//Get Single Cat (not implemented)
-router.get('/:id', (req, res, next) => {
-  const cat = catData.find(c => c.id === req.params.id)
-  if(cat) {
-    res.json(cat).status(200).send()
+// GET /api/cat/enemies  -> all cats from *other* users
+router.get('/enemies', async (req, res) => {
+  try {
+    const db = req.app.get('db');
+
+    const oauthUserId = res.locals.oauth?.token?.user?.user_id;
+    if (!oauthUserId) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    const myId = String(oauthUserId).trim();
+
+    // all cats where userId != myId
+    const cats = await db
+      .collection('cat')
+      .find({ userId: { $ne: myId } })
+      .toArray();
+
+    return res.json(cats);
+  } catch (err) {
+    console.error('GET /api/cat/enemies error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
-  else {
-    res.status(403).send()
-  }
-})
+});
+
 
 //Create Single Cat
 router.post('/', async (req, res) => {
