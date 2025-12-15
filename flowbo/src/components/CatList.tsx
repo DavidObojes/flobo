@@ -11,7 +11,7 @@ import type {Cat} from "../types/cat.ts";
 
 export const CatList = ({ cats, onFight, onSelect }: {
   cats: Cat[];
-  onFight: (id: string) => void;
+  onFight: (cat: Cat) => void;
   onSelect: (cat: Cat) => void;
 }) => (
   <div className="space-y-3 overflow-auto max-h-[60vh] pr-2">
@@ -35,7 +35,7 @@ export const CatList = ({ cats, onFight, onSelect }: {
           size="small"
           onClick={(e) => {
             e.stopPropagation();
-            onFight(cat.userId);
+            onFight(cat);
           }}
         >
           Fight

@@ -1,4 +1,6 @@
 import {useEffect, useState} from "react";
+import { EnemyCatList } from "./EnemyCatList";
+
 
 import {
   Typography,
@@ -24,6 +26,8 @@ export default function CatBoard() {
   const [fightOpen, setFightOpen] = useState(false);
   const [opponent, setOpponent] = useState<Cat | null>(null);
   const [result, setResult] = useState<string | null>(null);
+  const [enemyCats, setEnemyCats] = useState<Cat[]>([]);
+
 
   useEffect(() => {
     const getCatData = async () => {
@@ -43,11 +47,29 @@ export default function CatBoard() {
       }
     };
 
+     const getEnemyCats = async () => {
+    try {
+      const token = localStorage.getItem("access_token");
+      const response = await fetch("/api/cat/enemies", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+      const data = await response.json();
+      setEnemyCats(data);
+    } catch (err) {
+      console.error("Failed to fetch enemy cats:", err);
+    }
+  };
+
     getCatData();
+    getEnemyCats(); 
   }, []);
 
-  const levelUpCat = async (userId: string) => {
-    const res = await fetch(`/api/cat/${userId}/level`, {
+  const levelUpCat = async (catId: string) => {
+    const res = await fetch(`/api/cat/${catId}/level`, {
       method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({delta: 1, incWin: true})
@@ -67,18 +89,19 @@ export default function CatBoard() {
 
 
   const startFight = async () => {
-    if (!myCat || !opponent) return;
-    const winner = power(myCat) >= power(opponent) ? myCat : opponent;
+  if (!myCat || !opponent) return;
+  const winner = power(myCat) >= power(opponent) ? myCat : opponent;
 
-    try {
-      const updatedWinner = await levelUpCat(winner.userId);
-      replaceCatInState(updatedWinner);
-      setResult(`${updatedWinner.name} wins! Lv.${updatedWinner.level}`);
-    } catch (e) {
-      console.error(e);
-      setResult('Konnte Level-Up nicht speichern.');
-    }
-  };
+  try {
+    if (!winner._id) throw new Error("Winner has no _id");
+    const updatedWinner = await levelUpCat(winner._id);
+    replaceCatInState(updatedWinner);
+    setResult(`${updatedWinner.name} wins! Lv.${updatedWinner.level}`);
+  } catch (e) {
+    console.error(e);
+    setResult("Konnte Level-Up nicht speichern.");
+  }
+};
 
   const closeFight = () => {
     setFightOpen(false);
@@ -86,17 +109,16 @@ export default function CatBoard() {
     setResult(null);
   };
 
-  const fight = (opponentId: string) => {
+  const fight = (opponent: Cat) => {
     console.log("Fight against another Cat...")
-    const opp = cats.find(c => c.userId === opponentId) || null;
-    setOpponent(opp);
+    setOpponent(opponent);
     setFightOpen(true);
   };
 
 
   return (
       <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
+        <div className="max-w-7xl mx-auto grid grid-cols-19 gap-10">
           {/* Katzengenerator */}
           <aside className="col-span-5 bg-white rounded-2xl shadow p-5">
             <Typography variant="h5" className="mb-8">
@@ -126,6 +148,8 @@ export default function CatBoard() {
             </div>
 
             <CatList cats={cats} onFight={fight} onSelect={setSelectedCat}/>
+
+            
 
             <Dialog open={fightOpen} onClose={closeFight} fullWidth maxWidth="sm">
               <DialogTitle>Fight!</DialogTitle>
@@ -171,6 +195,26 @@ export default function CatBoard() {
 
             <CatDetail cat={selectedCat}/>
 
+          </main>
+          <main className="col-span-7 bg-white rounded-2xl shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-2xl font-semibold">Gegnerische Katzenübersicht</h2>
+                <p className="text-sm text-gray-500">
+                    Wähle eine Katze, sieh ihre Werte oder kämpfe!
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <IconButton title="Mischen" onClick={() => setCats((c) => [...c].sort(() => Math.random() - 0.5))}>
+                  <ShuffleIcon/>
+                </IconButton>
+              </div>
+            </div>
+
+            <EnemyCatList cats={enemyCats} onSelect={(cat) => { setOpponent(cat); }} onFight={(cat) => {
+                  setOpponent(cat);
+                  setFightOpen(true);
+                }} />
           </main>
         </div>
       </div>
