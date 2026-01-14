@@ -1,7 +1,7 @@
-import {StrictMode} from 'react'
-import {createRoot} from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import {StrictMode} from 'react';
+import {createRoot} from 'react-dom/client';
+import './index.css';
+import App from './App.tsx';
 import {createBrowserRouter, RouterProvider} from "react-router-dom";
 import LoginPage from './pages/LoginPage.tsx';
 import RegisterPage from './pages/RegisterPage.tsx';
@@ -20,17 +20,17 @@ const router = createBrowserRouter([
       {
         index: true,
         element: (
-            <PrivateRoute>
-              <App/>
-            </PrivateRoute>
+          <PrivateRoute>
+            <App/>
+          </PrivateRoute>
         ),
       },
       {
         path: "user/:userId",
         element: (
-            <PrivateRoute>
-              <User/>
-            </PrivateRoute>
+          <PrivateRoute>
+            <User/>
+          </PrivateRoute>
         ),
       },
     ],
@@ -54,11 +54,11 @@ const router = createBrowserRouter([
 ]);
 
 
-const container = document.getElementById('root')
+const container = document.getElementById('root');
 
 createRoot(container!).render(
-    <StrictMode>
-      <RouterProvider router={router}/>
-    </StrictMode>,
+  <StrictMode>
+    <RouterProvider router={router}/>
+  </StrictMode>,
 );
 

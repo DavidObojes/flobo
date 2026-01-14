@@ -2,8 +2,6 @@
 import express from 'express';
 import user from './user.js';
 import cat from './cat.js';
-import {checkLogin} from "../middleware/checkLogin.js";
-import { ObjectId } from 'mongodb';
 
 const router = express.Router();
 
