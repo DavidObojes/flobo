@@ -18,6 +18,10 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        //projectService: true,
+        tsconfigRootDir: path.resolve(import.meta.dirname, "src"),
+      },
     },
   },
 ])
