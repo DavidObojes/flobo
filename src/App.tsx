@@ -1,13 +1,13 @@
-import './App.css'
+import './App.css';
 import CatBoard from "./components/CatBoard.tsx";
 
 function App() {
 
   return (
     <>
-     <CatBoard />
+      <CatBoard />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
