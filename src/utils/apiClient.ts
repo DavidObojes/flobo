@@ -86,3 +86,26 @@ export const apiRequest = async (url: string, options: RequestInit = {}): Promis
 
   return response;
 };
+
+export const logout = async () => {
+  const refreshToken = localStorage.getItem("refresh_token");
+
+  try {
+    if (refreshToken) {
+      // Dem Server sagen, dass der Token gelöscht werden soll
+      // Wir nutzen fetch direkt, da apiRequest hier einen Loop erzeugen könnte
+      await fetch("/api/token/revoke", { 
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ token: refreshToken }),
+      });
+    }
+  } catch (err) {
+    console.error("Server-Logout fehlgeschlagen", err);
+  } finally {
+    // Egal ob der Server-Request klappt oder nicht: Lokal wird gelöscht!
+    localStorage.clear();
+    // Harter Redirect zur Login-Seite löscht auch alle React-States
+    window.location.href = "/login";
+  }
+};
