@@ -28,7 +28,7 @@ export default function LeaderBoardGlobal() {
     const getCatData = async () => {
       try {
 
-        const response = await apiRequest("/api/cat");
+        const response = await apiRequest("/api/cat/all");
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const catsData = await response.json();

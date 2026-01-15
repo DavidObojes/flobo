@@ -58,20 +58,33 @@ export default function ArenaBoard() {
     getEnemyCats();
   }, []);
 
-  const levelUpCat = async (catId: string) => {
-    const res = await apiRequest(`/api/cat/${catId}/level`, {
+  const updateCatStats = async (catId: string, isWinner: boolean) => {
+    const res = await apiRequest(`/api/cat/${catId}/progress`, {
       method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({delta: 1, incWin: true}),
+      body: JSON.stringify({
+        // Only the winner gains a level/progress point
+        delta: isWinner ? 1 : 0,
+        incWin: isWinner,
+        incLoss: !isWinner,
+      }),
     });
-    if (!res.ok) throw new Error('Level up failed');
-    return res.json(); // updated cat
+
+    if (!res.ok) throw new Error(`Failed to update stats for cat ${catId}`);
+    return res.json();
   };
 
   const replaceCatInState = (updated: Cat) => {
-    setCats(prev => prev.map(c => c.userId === updated.userId ? updated : c));
-    setMyCat(prev => (prev && prev.userId === updated.userId ? updated : prev));
-    setOpponent(prev => (prev && prev.userId === updated.userId ? updated : prev));
+    // 1. Update your Squad list (only replace the cat with the matching _id)
+    setCats(prev => prev.map(c => c._id === updated._id ? updated : c));
+
+    // 2. Update the Enemy list (in case the opponent was an enemy)
+    setEnemyCats(prev => prev.map(c => c._id === updated._id ? updated : c));
+
+    // 3. Update active UI references
+    if (selectedCat?._id === updated._id) setSelectedCat(updated);
+    if (myCat?._id === updated._id) setMyCat(updated);
+    if (opponent?._id === updated._id) setOpponent(updated);
   };
 
   const power = (c: Cat) =>
@@ -80,18 +93,30 @@ export default function ArenaBoard() {
 
   const startFight = async () => {
     if (!myCat || !opponent) return;
-    const winner = power(myCat) >= power(opponent) ? myCat : opponent;
+
+    // 1. Determine outcome locally
+    const iWon = power(myCat) >= power(opponent);
+    const winner = iWon ? myCat : opponent;
+    const loser = iWon ? opponent : myCat;
 
     try {
-      if (!winner._id) throw new Error("Winner has no _id");
-      const updatedWinner = await levelUpCat(winner._id);
+      // 2. Fire both fetch calls simultaneously
+      const [updatedWinner, updatedLoser] = await Promise.all([
+        updateCatStats(winner._id, true),  // The Winner
+        updateCatStats(loser._id, false),  // The Loser
+      ]);
+
+      // 3. Sync your local React state with the new data
       replaceCatInState(updatedWinner);
-      setResult(`${updatedWinner.name} wins! Lv.${updatedWinner.level}`);
+      replaceCatInState(updatedLoser);
+
+      setResult(`${updatedWinner.name} wins!`);
     } catch (e) {
-      console.error(e);
-      setResult("Konnte Level-Up nicht speichern.");
+      console.error("Combat sync failed:", e);
+      setResult("Combat recorded locally, but server sync failed.");
     }
   };
+
 
   const closeFight = () => {
     setFightOpen(false);
@@ -135,7 +160,8 @@ export default function ArenaBoard() {
                 <h2 className="text-lg font-black uppercase italic leading-none text-yellow-400">Gewählte Einheit</h2>
 
               </div>
-              {myCat && <div className="animate-pulse bg-red-600 px-2 py-1 rounded text-[10px] font-black italic">ACTIVE</div>}
+              {myCat && <div
+                className="animate-pulse bg-red-600 px-2 py-1 rounded text-[10px] font-black italic">ACTIVE</div>}
             </div>
 
             <div className="p-6">
@@ -166,7 +192,7 @@ export default function ArenaBoard() {
 
       </div>
 
-      {/* --- KAMPF DIALOG BLEIBT GLEICH --- */}
+      {/* --- KAMPF DIALOG --- */}
       <Dialog
         open={fightOpen}
         onClose={closeFight}
@@ -183,9 +209,9 @@ export default function ArenaBoard() {
         }}
       >
         <DialogTitle className="text-center bg-yellow-400 text-black font-black uppercase italic">
-          Arena Battle
+            Arena Battle
         </DialogTitle>
-        <DialogContent className="p-8">
+        <DialogContent>
           <div className="flex justify-between items-center my-6 gap-4">
             <div className="text-center group">
               {myCat && (
@@ -195,8 +221,11 @@ export default function ArenaBoard() {
                     alt={myCat.name}
                     className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-full border-4 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.5)]"
                   />
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded">YOU</div>
-                  <Typography variant="h6" className="mt-4 font-bold tracking-tight">{myCat.name}</Typography>
+
+                  <Typography variant="h6" mt={2} mb={2}>{myCat.name}</Typography>
+                  <div
+                    className="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded max-w-[50px] mx-auto">YOU
+                  </div>
                 </div>
               )}
             </div>
@@ -211,8 +240,10 @@ export default function ArenaBoard() {
                     alt={opponent.name}
                     className="w-32 h-32 md:w-40 md:h-40 object-cover rounded-full border-4 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]"
                   />
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded">FOE</div>
-                  <Typography variant="h6" className="mt-4 font-bold tracking-tight">{opponent.name}</Typography>
+                  <Typography variant="h6" mt={2} mb={2}>{opponent.name}</Typography>
+                  <div
+                    className="bg-red-500 text-black text-xs font-bold px-3 py-1 rounded max-w-[50px] mx-auto">FOE
+                  </div>
                 </div>
               )}
             </div>
@@ -225,7 +256,8 @@ export default function ArenaBoard() {
           )}
 
           <Stack mt={4} spacing={2} className="bg-black/30 p-4 rounded-xl">
-            <div className="flex justify-between text-sm uppercase font-bold tracking-widest text-gray-400 border-b border-white/10 pb-2">
+            <div
+              className="flex justify-between text-sm uppercase font-bold tracking-widest text-gray-400 border-b border-white/10 pb-2">
               <span>Combat Analysis</span>
               <span>Power Level</span>
             </div>
@@ -246,7 +278,7 @@ export default function ArenaBoard() {
                 '&:hover': {bgcolor: '#eab308'},
               }}
             >
-            Angriff starten!
+                  Start Combat!
             </Button>
           ) : (
             <Button onClick={closeFight} sx={{color: '#facc15'}}>Schließen</Button>

@@ -24,6 +24,20 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.get('/all', async (req, res) => {
+  try {
+    const db = req.app.get('db');
+
+    // all cats
+    const cats = await db.collection('cat').find({}).toArray();
+    res.json(cats);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send();
+  }
+});
+
 // GET /api/cat/enemies  -> all cats from *other* users
 router.get('/enemies', async (req, res) => {
   try {
@@ -91,41 +105,44 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PATCH /api/cat/:id/level
-router.patch('/:id/level', async (req, res) => {
+// PATCH /api/cat/:id/progress
+router.patch('/:id/progress', async (req, res) => {
   try {
     const db = req.app.get('db');
 
-    // Authentifizierung bleibt als Schutzmauer bestehen
     const userId = String(res.locals.oauth?.token?.user?.user_id || '').trim();
     if (!userId) {
       return res.status(401).json({ message: 'Not authenticated' });
     }
 
-    const { delta = 1, incWin = true } = req.body || {};
+    // Accept incLoss from the request body
+    const { delta = 0, incWin = false, incLoss = false } = req.body || {};
 
-    const update = { $inc: { level: delta } };
-    if (incWin) update.$inc.wins = 1;
+    // Dynamically build the increment object
+    const incObject = {};
 
-    // GEÄNDERT: Wir filtern NUR noch nach der ID,
-    // damit auch gegnerische Katzen gelevelt werden können.
+    if (delta !== 0) incObject.level = delta;
+    if (incWin) incObject.wins = 1;
+    if (incLoss) incObject.losses = 1; // New field incremented here
+
+    const update = { $inc: incObject };
+
     const filter = {
       _id: new ObjectId(req.params.id)
     };
 
-    // 1) update
+    // 1) Update the document
     const r = await db.collection('cat').updateOne(filter, update);
 
-    // 2) Wenn keine Katze mit dieser ID existiert -> 404
     if (r.matchedCount === 0) {
       return res.status(404).json({ message: 'Cat not found' });
     }
 
-    // 3) Den aktualisierten Datensatz zurückgeben
+    // 2) Return the updated record
     const doc = await db.collection('cat').findOne(filter);
     return res.json(doc);
   } catch (err) {
-    console.error('LevelUp error:', err);
+    console.error('Update error:', err);
     return res.status(500).json({ message: 'Internal error' });
   }
 });
