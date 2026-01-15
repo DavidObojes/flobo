@@ -10,6 +10,8 @@ import Menu from "./layout/Menu.tsx";
 import User from "./pages/User.tsx";
 import ActivationPage from "./pages/ActivationPage.tsx";
 import PrivateRoute from './pages/PrivateRoute.tsx';
+import Dashboard from './pages/Dashboard.tsx';
+import Arena from "./pages/Arena.tsx";
 
 const router = createBrowserRouter([
   {
@@ -18,20 +20,22 @@ const router = createBrowserRouter([
     errorElement: <NotFound/>,
     children: [
       {
-        index: true,
-        element: (
-          <PrivateRoute>
-            <App/>
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "user/:userId",
-        element: (
-          <PrivateRoute>
-            <User/>
-          </PrivateRoute>
-        ),
+        // Diese Gruppe ist nur für eingeloggte User
+        element: <PrivateRoute><App/></PrivateRoute>,
+        children: [
+          {
+            index: true, // Das ist "/"
+            element: <Dashboard/>,
+          },
+          {
+            path: "arena",
+            element: <Arena/>,
+          },
+          {
+            path: "user/:userId",
+            element: <User/>,
+          },
+        ],
       },
     ],
   },

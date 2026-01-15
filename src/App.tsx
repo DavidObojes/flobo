@@ -1,12 +1,10 @@
+import { Outlet } from 'react-router-dom';
 import './App.css';
-import CatBoard from "./components/CatBoard.tsx";
 
 function App() {
 
   return (
-    <>
-      <CatBoard />
-    </>
+    <Outlet />
   );
 }
 

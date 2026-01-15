@@ -91,11 +91,12 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PATCH /api/cat/:userId/level
+// PATCH /api/cat/:id/level
 router.patch('/:id/level', async (req, res) => {
   try {
     const db = req.app.get('db');
 
+    // Authentifizierung bleibt als Schutzmauer bestehen
     const userId = String(res.locals.oauth?.token?.user?.user_id || '').trim();
     if (!userId) {
       return res.status(401).json({ message: 'Not authenticated' });
@@ -106,20 +107,21 @@ router.patch('/:id/level', async (req, res) => {
     const update = { $inc: { level: delta } };
     if (incWin) update.$inc.wins = 1;
 
+    // GEÄNDERT: Wir filtern NUR noch nach der ID,
+    // damit auch gegnerische Katzen gelevelt werden können.
     const filter = {
-      _id: new ObjectId(req.params.id),
-      userId, // 👈 make sure the cat belongs to this user
+      _id: new ObjectId(req.params.id)
     };
 
     // 1) update
     const r = await db.collection('cat').updateOne(filter, update);
 
-    // 2) No doc matched -> 404
+    // 2) Wenn keine Katze mit dieser ID existiert -> 404
     if (r.matchedCount === 0) {
-      return res.status(404).json({ message: 'Cat not found for this user' });
+      return res.status(404).json({ message: 'Cat not found' });
     }
 
-    // 3) return updated doc
+    // 3) Den aktualisierten Datensatz zurückgeben
     const doc = await db.collection('cat').findOne(filter);
     return res.json(doc);
   } catch (err) {
