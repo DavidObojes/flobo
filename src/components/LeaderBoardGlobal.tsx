@@ -12,8 +12,8 @@ import {apiRequest} from "../utils/apiClient.ts";
 import {MyCatList} from "./MyCatList.tsx";
 
 
-// === Super Crazy Arenaboard ===
-export default function ArenaBoard() {
+// === Super Crazy LeaderBoard ===
+export default function LeaderBoardGlobal() {
 
   const [cats, setCats] = useState<Cat[]>([]);
   const [selectedCat, setSelectedCat] = useState<Cat | null>(cats[0]);

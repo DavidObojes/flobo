@@ -34,7 +34,7 @@ export default function MyCatBoard() {
   };
 
   return (
-    <div className="max-w-full mx-auto max-w-[1600px] min-h-screen flex flex-col gap-8 py-6 text-white">
+    <div className="mx-auto max-w-[1600px] min-h-screen flex flex-col gap-8 p-4 md:p-10 text-white">
 
       {/* OBERE SEKTION: 50/50 Split */}
       <div className="flex-shrink-0">

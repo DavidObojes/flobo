@@ -1,7 +1,6 @@
 import MyCatBoard from "../components/MyCatBoard.tsx";
 
-
-function App() {
+function DashBoard() {
 
   return (
     <>
@@ -10,4 +9,4 @@ function App() {
   );
 }
 
-export default App;
+export default DashBoard;

@@ -10,8 +10,9 @@ import Menu from "./layout/Menu.tsx";
 import User from "./pages/User.tsx";
 import ActivationPage from "./pages/ActivationPage.tsx";
 import PrivateRoute from './pages/PrivateRoute.tsx';
-import Dashboard from './pages/Dashboard.tsx';
+import Dashboard from './pages/DashBoard.tsx';
 import Arena from "./pages/Arena.tsx";
+import LeaderBoard from "./pages/LeaderBoard.tsx";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
           {
             path: "arena",
             element: <Arena/>,
+          },
+          {
+            path: "leaderboard",
+            element: <LeaderBoard/>,
           },
           {
             path: "user/:userId",

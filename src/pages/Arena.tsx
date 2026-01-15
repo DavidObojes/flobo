@@ -1,7 +1,7 @@
 import ArenaBoard from "../components/ArenaBoard.tsx";
 
 
-function App() {
+function Arena() {
 
   return (
     <>
@@ -10,4 +10,4 @@ function App() {
   );
 }
 
-export default App;
+export default Arena;

@@ -11,7 +11,7 @@ import {
 import PetsIcon from '@mui/icons-material/Pets';
 import FlashOnIcon from '@mui/icons-material/FlashOn';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PersonIcon from '@mui/icons-material/Person';
+import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import { logout } from "../utils/apiClient.ts";
 
 export default function Menu() {
@@ -34,10 +34,10 @@ export default function Menu() {
                 letterSpacing: '.1rem',
                 color: 'inherit',
                 textDecoration: 'none',
-                fontFamily: 'monospace'
+                fontFamily: 'monospace',
               }}
             >
-              CAT-FIGHT
+              CAT BRAWL
             </Typography>
 
             {/* Haupt-Navigation */}
@@ -63,8 +63,19 @@ export default function Menu() {
                     Arena
                   </Button>
 
-                  {/* Deine Test-User Links */}
+                  {/* Test-User Links */}
                   <Button
+                    component={NavLink}
+                    to="/leaderboard"
+                    startIcon={<MilitaryTechIcon />}
+                    color="inherit"
+                    sx={{ "&.active": { color: '#f1c40f' }, display: { xs: 'none', md: 'flex' } }}
+                  >
+                    Leaderboards
+                  </Button>
+
+                  {/* Test-User Links */}
+                  {/* <Button
                     component={NavLink}
                     to="/user/1234"
                     startIcon={<PersonIcon />}
@@ -72,7 +83,7 @@ export default function Menu() {
                     sx={{ "&.active": { color: '#f1c40f' }, display: { xs: 'none', md: 'flex' } }}
                   >
                     User A
-                  </Button>
+                  </Button>*/}
                 </>
               )}
             </Box>

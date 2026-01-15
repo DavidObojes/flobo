@@ -1,7 +1,6 @@
 import * as React from "react";
 import {
   Alert,
-  Avatar,
   Box,
   Button,
   Container,
@@ -10,15 +9,25 @@ import {
   TextField,
   Typography,
   CircularProgress,
-  Card,
-  CardContent,
 } from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import {Link as RouterLink, useNavigate} from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 
+// Der konsistente Terminal-Stil für die Eingabefelder
+const terminalInputStyle = {
+  '& label': { color: '#666', fontWeight: 'bold'},
+  '& label.Mui-focused': { color: '#facc15' },
+  '& .MuiOutlinedInput-root': {
+    marginBottom: '2rem',
+    color: 'white',
+    fontFamily: 'monospace',
+    '& fieldset': { borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px'},
+    '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.3)'},
+    '&.Mui-focused fieldset': { borderColor: '#facc15', borderWidth: '2px' },
+    bgcolor: 'rgba(0,0,0,0.2)',
+  },
+};
 
 const RegisterPage: React.FC = () => {
-
   const navigate = useNavigate();
 
   const [email, setEmail] = React.useState("");
@@ -32,52 +41,61 @@ const RegisterPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setLoading(true);
+
     const res = await fetch("/api/register", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({email}),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
     });
     const data = await res.json();
 
     setLoading(false);
-    setSnack({open: true, ok: res.ok, message: data.message});
+    setSnack({ open: true, ok: res.ok, message: data.message });
 
-    if(res.ok) {
-      setTimeout( () => navigate(`/activate/`), 1500);
+    if (res.ok) {
+      setTimeout(() => navigate(`/activate/`), 1500);
     }
-
   };
 
   return (
-    <Container maxWidth="sm" sx={{minHeight: "100dvh", display: "flex", alignItems: "center"}}>
-      <Card sx={{width: "100%", borderRadius: 3, boxShadow: 6}}>
-        <CardContent sx={{p: 4}}>
-          <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", mb: 2}}>
-            <Avatar sx={{m: 1}}>
-              <LockOutlinedIcon/>
-            </Avatar>
-            <Typography component="h1" variant="h5" fontWeight={700}>
-                Registrieren
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-                Demo-Seite – es wird kein echter Account erstellt.
-            </Typography>
-          </Box>
+    <Container
+      maxWidth={false}
+      sx={{
+        minHeight: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "#121212",
+        p: 0,
+      }}
+    >
+      <div className="w-full max-w-md bg-[#1e1e1e] rounded-3xl border-2 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.15)] overflow-hidden">
 
-          <Box component="form" onSubmit={handleSubmit} noValidate>
+        {/* Header-Balken */}
+        <div className="bg-yellow-400 p-6 text-black items-center gap-4">
+          <div>
+            <h1 className="text-xl font-black uppercase italic leading-none tracking-tighter">
+              Register
+            </h1>
+            <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest mt-1">
+              Initialize Combat Profile
+            </p>
+          </div>
+        </div>
+
+        <div className="p-8">
+
+          <Box component="form" onSubmit={handleSubmit} noValidate className="space-y-6">
             <TextField
-              label="E-Mail"
+              label="EMAIL"
               type="email"
               fullWidth
               required
-              margin="normal"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              autoComplete="email"
+              sx={terminalInputStyle}
             />
 
             <Button
@@ -86,33 +104,54 @@ const RegisterPage: React.FC = () => {
               size="large"
               variant="contained"
               disabled={loading}
-              startIcon={loading ? <CircularProgress size={18}/> : null}
-              sx={{mt: 2}}
+              sx={{
+                bgcolor: '#facc15',
+                color: 'black',
+                fontWeight: 900,
+                fontStyle: 'italic',
+                py: 1.5,
+                fontSize: '1rem',
+                '&:hover': { bgcolor: '#fff', boxShadow: '0 0 20px rgba(255,255,255,0.2)' },
+                '&.Mui-disabled': { bgcolor: '#333', color: '#666' },
+              }}
+              startIcon={loading ? <CircularProgress size={18} color="inherit" /> : null}
             >
-              {loading ? "Erstellen…" : "Konto erstellen"}
+              {loading ? "INITIALIZING..." : "CREATE PROFILE"}
             </Button>
 
-            <Typography variant="body2" align="center" sx={{mt: 2}}>
-                Bereits ein Konto?{" "}
-              <MUILink component={RouterLink} to="/login" underline="hover">
-                  Anmelden (Demo)
-              </MUILink>
-            </Typography>
+            <div className="mt-6 text-center border-t border-white/5 pt-6">
+              <Typography variant="body2" sx={{ color: '#666', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.7rem' }}>
+                Already registered?{" "}
+                <MUILink
+                  component={RouterLink}
+                  to="/login"
+                  sx={{ color: '#facc15', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                >
+                  Return to Login
+                </MUILink>
+              </Typography>
+            </div>
           </Box>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <Snackbar
         open={snack.open}
         autoHideDuration={2400}
         onClose={() => setSnack((s) => ({...s, open: false}))}
-        anchorOrigin={{vertical: "bottom", horizontal: "center"}}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
           severity={snack.ok ? "success" : "error"}
           variant="filled"
           onClose={() => setSnack((s) => ({...s, open: false}))}
-          sx={{width: "100%"}}
+          sx={{
+            bgcolor: snack.ok ? '#facc15' : '#ef4444',
+            color: snack.ok ? 'black' : 'white',
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+            fontSize: '0.75rem',
+          }}
         >
           {snack.message}
         </Alert>
