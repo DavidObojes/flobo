@@ -8,10 +8,23 @@ import {CatDetail} from "./CatDetail.tsx";
 import {CatGenerator} from "./CatGenerator";
 import {apiRequest} from "../utils/apiClient.ts";
 import {MyCatList} from "./MyCatList.tsx";
+import type {User} from "../types/user.ts";
 
 export default function MyCatBoard() {
   const [cats, setCats] = useState<Cat[]>([]);
   const [selectedCat, setSelectedCat] = useState<Cat | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchSelf = async () => {
+      const res = await apiRequest("/api/user/authenticated");
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentUser(data);
+      }
+    };
+    fetchSelf();
+  }, []);
 
   useEffect(() => {
     const getCatData = async () => {
@@ -35,6 +48,10 @@ export default function MyCatBoard() {
 
   return (
     <div className="mx-auto max-w-[1600px] min-h-screen flex flex-col gap-8 p-4 md:p-10 text-white">
+
+      <h1 className="text-2xl md:text-4xl font-black uppercase italic tracking-tighter text-white">
+          Hello <span className="text-yellow-400">{currentUser?.firstName} {currentUser?.lastName}</span>
+      </h1>
 
       {/* OBERE SEKTION: 50/50 Split */}
       <div className="flex-shrink-0">

@@ -8,13 +8,13 @@ router.get('/', async (req, res) => {
   try {
     const db = req.app.get('db');
 
-    // 👇 get userId from OAuth token (same structure as in writeAccess)
+    // get userId from OAuth token
     const userId = String(res.locals.oauth?.token?.user?.user_id || '').trim();
     if (!userId) {
       return res.status(401).json({ message: 'Not authenticated' });
     }
 
-    // 👇 only cats that belong to this user
+    // only cats that belong to this user
     const cats = await db.collection('cat').find({ userId }).toArray();
 
     res.json(cats);

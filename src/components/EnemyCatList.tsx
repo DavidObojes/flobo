@@ -1,21 +1,30 @@
 import { motion } from "framer-motion";
 import { Avatar, Button, Typography } from "@mui/material";
 import type { Cat } from "../types/cat.ts";
+import type { User } from "../types/user.ts"; // Import the User type
 import SportsMmaIcon from '@mui/icons-material/SportsMma';
 
 type EnemyCatListProps = {
   cats: Cat[];
+  users: User[]; // Add users prop
   onFight: (cat: Cat) => void;
   onSelect: (cat: Cat) => void;
 };
 
-export const EnemyCatList = ({ cats, onFight, onSelect }: EnemyCatListProps) => {
+export const EnemyCatList = ({ cats, users, onFight, onSelect }: EnemyCatListProps) => {
+
+  // Helper to find the trainer's name
+  const getOwnerName = (userId: string | undefined) => {
+    const user = users.find((u) => String(u._id) === String(userId));
+    return user ? `${user.firstName} ${user.lastName}` : "Anonym";
+  };
+
   return (
     <div className="space-y-3 overflow-y-auto max-h-[60vh] pr-2 custom-scrollbar">
       {cats.map((cat) => (
         <motion.div
           key={cat._id ?? cat.name}
-          whileHover={{ x: -5 }} // Schiebt sich nach links (Gegenseite zur MyCatList)
+          whileHover={{ x: -5 }}
           whileTap={{ scale: 0.98 }}
           className="group relative bg-[#2a2a2a] border border-white/5 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:border-red-500/50 transition-all duration-200"
           onClick={() => onSelect(cat)}
@@ -34,13 +43,14 @@ export const EnemyCatList = ({ cats, onFight, onSelect }: EnemyCatListProps) => 
             </div>
 
             <div>
-              <Typography className="text-white font-bold tracking-tight group-hover:text-red-400 transition-colors">
+              <Typography className="text-white text-left font-bold tracking-tight group-hover:text-red-400 transition-colors">
                 {cat.name}
               </Typography>
-              <div className="flex flex-col mt-1">
+              <div className="flex flex-col mt-1 text-left">
                 <span className="text-[10px] uppercase text-gray-500 font-bold leading-none">Besitzer</span>
-                <span className="text-xs text-gray-400 truncate max-w-[100px]">
-                  {cat.userId ? `ID: ${cat.userId.slice(-6)}` : "Anonym"}
+                {/* DISPLAY TRAINER NAME HERE */}
+                <span className="text-xs text-red-400/80 font-black italic truncate max-w-[120px]">
+                  {getOwnerName(cat.userId)}
                 </span>
               </div>
             </div>
@@ -64,8 +74,8 @@ export const EnemyCatList = ({ cats, onFight, onSelect }: EnemyCatListProps) => 
               '&:hover': {
                 bgcolor: '#ef4444',
                 color: 'white',
-                boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)'
-              }
+                boxShadow: '0 0 15px rgba(239, 68, 68, 0.4)',
+              },
             }}
           >
             Fight

@@ -30,7 +30,7 @@ export const MyCatList = ({ cats, onSelect }: {
           </div>
 
           <div>
-            <Typography className="text-white font-bold tracking-tight group-hover:text-yellow-400 transition-colors">
+            <Typography className="text-white text-left font-bold tracking-tight group-hover:text-yellow-400 transition-colors">
               {cat.name}
             </Typography>
             <div className="flex items-center gap-3 mt-1">

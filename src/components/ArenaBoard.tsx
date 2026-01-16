@@ -10,6 +10,7 @@ import type {Cat} from "../types/cat";
 import {CatDetail} from "./CatDetail.tsx";
 import {apiRequest} from "../utils/apiClient.ts";
 import {MyCatList} from "./MyCatList.tsx";
+import type {User} from "../types/user.ts";
 
 
 // === Super Crazy Arenaboard ===
@@ -22,6 +23,16 @@ export default function ArenaBoard() {
   const [opponent, setOpponent] = useState<Cat | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [enemyCats, setEnemyCats] = useState<Cat[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const res = await apiRequest("/api/user");
+      const data = await res.json();
+      setUsers(data);
+    };
+    fetchUsers();
+  }, []);
 
 
   useEffect(() => {
@@ -58,7 +69,7 @@ export default function ArenaBoard() {
     getEnemyCats();
   }, []);
 
-  const updateCatStats = async (catId: string, isWinner: boolean) => {
+  const updateCatStats = async (catId: string | undefined, isWinner: boolean) => {
     const res = await apiRequest(`/api/cat/${catId}/progress`, {
       method: 'PATCH',
       headers: {'Content-Type': 'application/json'},
@@ -180,6 +191,7 @@ export default function ArenaBoard() {
             <div className="p-4">
               <EnemyCatList
                 cats={enemyCats}
+                users={users}
                 onSelect={(cat) => setOpponent(cat)}
                 onFight={(cat) => {
                   setOpponent(cat);

@@ -15,7 +15,7 @@ export default tseslint.config(
 
   // BACKEND (Node.js)
   {
-    files: ["server/**/*.ts"],
+    files: ["server/*.{js,ts,tsx}","server/**/*.{js,ts,tsx}"],
     languageOptions: {
       globals: {
         ...globals.node,
