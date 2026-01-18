@@ -1,5 +1,6 @@
 import {type JSX, useEffect, useState} from "react";
 import { Navigate } from "react-router-dom";
+import {apiRequest} from "../utils/apiClient.ts";
 
 interface PrivateRouteProps {
   children: JSX.Element;
@@ -19,11 +20,7 @@ const PrivateRoute = ({ children }: PrivateRouteProps) => {
       }
 
       try {
-        const res = await fetch("/api/protected-check", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await apiRequest("/api/protected-check");
 
         if (res.ok) {
           setAuthorized(true);

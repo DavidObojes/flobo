@@ -6,16 +6,16 @@ import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 
 export default tseslint.config(
-  // 1. Globale Einstellungen & Ignores
+  // Globale Einstellungen & Ignores
   { ignores: ["dist", "node_modules"] },
 
-  // 2. Gemeinsame Basis für alle JS/TS Dateien
+  // Gemeinsame Basis für alle JS/TS Dateien
   js.configs.recommended,
   ...tseslint.configs.recommended,
 
-  // 3. BACKEND (Node.js)
+  // BACKEND (Node.js)
   {
-    files: ["server/**/*.ts"],
+    files: ["server/*.{js,ts,tsx}","server/**/*.{js,ts,tsx}"],
     languageOptions: {
       globals: {
         ...globals.node,
@@ -26,7 +26,7 @@ export default tseslint.config(
     },
   },
 
-  // 4. FRONTEND (React + Browser)
+  // FRONTEND (React + Browser)
   {
     files: ["src/**/*.{ts,tsx}"],
     plugins: {

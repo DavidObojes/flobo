@@ -2,7 +2,6 @@
 import * as React from "react";
 import {
   Alert,
-  Avatar,
   Box,
   Button,
   Container,
@@ -11,11 +10,9 @@ import {
   TextField,
   Typography,
   CircularProgress,
-  Card,
-  CardContent,
 } from "@mui/material";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import {Link as RouterLink, useNavigate} from "react-router-dom";
+import PetsIcon from "@mui/icons-material/Pets";
 
 const LoginPage: React.FC = () => {
 
@@ -43,7 +40,7 @@ const LoginPage: React.FC = () => {
 
       const res = await fetch("/api/token", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
         body: formData,
       });
 
@@ -55,88 +52,143 @@ const LoginPage: React.FC = () => {
       }
 
       if (res.ok) {
-      // ✅ Erfolg
+        // ✅ Erfolg
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("refresh_token", data.refresh_token);
         localStorage.setItem("expires_in", (Date.now() + data.expires_in * 1000).toString());
 
-        setSnack({ open: true, ok: true, message: "Login erfolgreich" });
+        setSnack({open: true, ok: true, message: "Login erfolgreich"});
         setTimeout(() => navigate(`/`), 1500);
       } else {
-      // ❌ Fehler
+        // ❌ Fehler
         const errorMessage = "Login fehlgeschlagen";
 
-        setSnack({ open: true, ok: false, message: errorMessage });
+        setSnack({open: true, ok: false, message: errorMessage});
       }
     } catch (err) {
       console.error(err);
-      setSnack({ open: true, ok: false, message: "Netzwerkfehler" });
+      setSnack({open: true, ok: false, message: "Netzwerkfehler"});
     } finally {
       setLoading(false);
     }
   };
 
+  const terminalInputStyle = {
+    '& label': {color: '#666', fontWeight: 'bold',},
+    '& label.Mui-focused': {color: '#facc15'},
+    '& .MuiOutlinedInput-root': {
+      color: 'white',
+      fontFamily: 'monospace',
+      marginBottom: '2rem',
+      borderRadius: '12px',
+      overflow: 'hidden',
+      '& fieldset': {borderColor: 'rgba(255,255,255,0.1)'},
+      '&:hover fieldset': {borderColor: 'rgba(255,255,255,0.3)'},
+      '&.Mui-focused fieldset': {borderColor: '#facc15', borderWidth: '2px'},
+      bgcolor: 'rgba(0,0,0,0.2)',
+    },
+  };
+
 
   return (
-    <Container maxWidth="sm" sx={{minHeight: "100dvh", display: "flex", alignItems: "center"}}>
-      <Card sx={{width: "100%", borderRadius: 3, boxShadow: 6}}>
-        <CardContent sx={{p: 4}}>
-          <Box sx={{display: "flex", flexDirection: "column", alignItems: "center", mb: 2}}>
-            <Avatar sx={{m: 1}}>
-              <LockOutlinedIcon/>
-            </Avatar>
-            <Typography component="h1" variant="h5" fontWeight={700}>
-                Anmelden
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-                Nur Demo – keine echte Authentifizierung.
-            </Typography>
-          </Box>
+    <Container
+      maxWidth={false}
+      sx={{
+        minHeight: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bg: "#121212", // Sicherstellen, dass der Hintergrund schwarz ist
+        p: 0,
+      }}
+    >
+      {/* Das Login-Terminal */}
+      <div
+        className="w-full max-w-md bg-[#1e1e1e] rounded-3xl border-2 border-yellow-400 shadow-[0_0_30px_rgba(250,204,21,0.15)] overflow-hidden">
 
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            <TextField
-              label="E-Mail"
+        {/* Header-Balken im Topbar-Stil */}
+        <div className="bg-yellow-400 p-6 text-black items-center gap-4">
+
+          <PetsIcon sx={{ color: '#000000'}} />
+
+          <div>
+            <h1 className="text-xl font-black uppercase italic leading-none tracking-tighter">
+                Cat Brawl
+            </h1>
+            <p className="text-[10px] font-bold opacity-70 uppercase tracking-widest mt-1">
+                Identity Verification Required
+            </p>
+          </div>
+        </div>
+
+        <div className="p-8">
+          <Box component="form" onSubmit={handleSubmit} noValidate className="space-y-4">
+            {/* E-Mail Feld */}
+            <TextField className="mb-8 block"
+              label="E-MAIL"
               type="email"
               fullWidth
               required
-              margin="normal"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              sx={terminalInputStyle}
             />
+
+
+            {/* Passwort Feld */}
             <TextField
-              label="Passwort"
+              label="PASSWORD"
               type="password"
               fullWidth
               required
-              margin="normal"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              sx={terminalInputStyle}
             />
 
-            <Button
-              type="submit"
-              fullWidth
-              size="large"
-              variant="contained"
-              disabled={loading}
-              startIcon={loading ? <CircularProgress size={18}/> : null}
-              sx={{mt: 1.5}}
-            >
-              {loading ? "Anmelden…" : "Anmelden"}
-            </Button>
+            <div className="pt-4">
+              <Button
+                type="submit"
+                fullWidth
+                size="large"
+                variant="contained"
+                disabled={loading}
+                sx={{
+                  bgcolor: '#facc15',
+                  color: 'black',
+                  fontWeight: 900,
+                  fontStyle: 'italic',
+                  py: 1.5,
+                  fontSize: '1rem',
+                  '&:hover': {bgcolor: '#fff', boxShadow: '0 0 20px rgba(255,255,255,0.2)'},
+                  '&.Mui-disabled': {bgcolor: '#333', color: '#666'},
+                }}
+                startIcon={loading ? <CircularProgress size={18} color="inherit"/> : null}
+              >
+                {loading ? "AUTHENTICATING..." : "Login"}
+              </Button>
+            </div>
 
-            <Typography variant="body2" align="center" sx={{mt: 2}}>
-                Neu hier?{" "}
-              <MUILink component={RouterLink} to="/register" underline="hover">
-                  Konto erstellen (Demo)
-              </MUILink>
-            </Typography>
+            <div className="mt-6 text-center border-t border-white/5 pt-6">
+              <Typography variant="body2"
+                sx={{color: '#666', fontWeight: 'bold', textTransform: 'uppercase', fontSize: '0.7rem'}}>
+                  New Recruit?{" "}
+                <MUILink
+                  component={RouterLink}
+                  to="/register"
+                  sx={{color: '#facc15', textDecoration: 'none', '&:hover': {textDecoration: 'underline'}}}
+                >
+                    Initialize New Account
+                </MUILink>
+              </Typography>
+            </div>
           </Box>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
+      {/* Snackbar wie gewohnt, aber farblich passend */}
       <Snackbar
         open={snack.open}
         autoHideDuration={2400}
@@ -147,7 +199,13 @@ const LoginPage: React.FC = () => {
           severity={snack.ok ? "success" : "error"}
           variant="filled"
           onClose={() => setSnack((s) => ({...s, open: false}))}
-          sx={{width: "100%"}}
+          sx={{
+            bgcolor: snack.ok ? '#facc15' : '#ef4444',
+            color: snack.ok ? 'black' : 'white',
+            fontWeight: 'bold',
+            textTransform: 'uppercase',
+            fontSize: '0.75rem',
+          }}
         >
           {snack.message}
         </Alert>

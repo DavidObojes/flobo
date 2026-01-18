@@ -14,7 +14,7 @@ export const CatList = ({ cats, onFight, onSelect }: {
   onFight: (cat: Cat) => void;
   onSelect: (cat: Cat) => void;
 }) => (
-  <div className="space-y-3 overflow-auto max-h-[60vh] pr-2">
+  <div className="space-y-3 overflow-auto pr-2">
     {cats.map((cat) => (
       <motion.div
         key={cat.userId}
