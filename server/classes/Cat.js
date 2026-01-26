@@ -1,27 +1,45 @@
 export default class Cat {
-
+  _id
   userId
   name
   imageUrl
-  stats = {
-    clawPower: 0,   //Attack damage
-    zoomSpeed: 0,   //Dodge / Crit chance
-    furDensity: 0,  //Defense / Armor
-    cuteness: 0,   //Debuff enemy / morale
-    chaosLuck: 0    //randomly modifies another stat per round (the higher the better)
-  }
-  xp
-  level
-  wins
-  losses
 
-  constructor(userId, name, imageUrl, stats = {}, xp = 0, level = 0, wins = 0, losses = 0) {
+  stats = {
+    clawPower: 0,
+    zoomSpeed: 0,
+    furDensity: 0,
+    cuteness: 0,
+    chaosLuck: 0,
+  }
+
+  xp = 0
+  level = 1
+  unspentPoints = 0
+  wins = 0
+  losses = 0
+
+  constructor({
+    _id,
+    userId,
+    name,
+    imageUrl,
+    stats = {},
+    xp = 0,
+    level = 1,
+    unspentPoints = 0,
+    wins = 0,
+    losses = 0,
+  } = {}) {
+    this._id = _id
     this.userId = userId
     this.name = name
     this.imageUrl = imageUrl
-    this.stats = stats
+
+    this.stats = { ...this.stats, ...stats }
+
     this.xp = xp
     this.level = level
+    this.unspentPoints = unspentPoints
     this.wins = wins
     this.losses = losses
   }
