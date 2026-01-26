@@ -106,39 +106,37 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH /api/cat/:id/progress
+// PATCH /api/cat/:id/progress
 router.patch('/:id/progress', async (req, res) => {
   try {
     const db = req.app.get('db');
 
     const userId = String(res.locals.oauth?.token?.user?.user_id || '').trim();
-    if (!userId) {
-      return res.status(401).json({ message: 'Not authenticated' });
-    }
+    if (!userId) return res.status(401).json({ message: 'Not authenticated' });
 
-    // Accept incLoss from the request body
-    const { delta = 0, incWin = false, incLoss = false } = req.body || {};
+    const { delta = 0, incWin = false, incLoss = false, set = {} } = req.body || {};
 
-    // Dynamically build the increment object
     const incObject = {};
-
     if (delta !== 0) incObject.level = delta;
     if (incWin) incObject.wins = 1;
-    if (incLoss) incObject.losses = 1; // New field incremented here
+    if (incLoss) incObject.losses = 1;
 
-    const update = { $inc: incObject };
+    const update = {};
+    if (Object.keys(incObject).length > 0) update.$inc = incObject;
 
-    const filter = {
-      _id: new ObjectId(req.params.id)
-    };
+    // allow setting xp/level/unspentPoints safely
+    const allowedSet = {};
+    if (typeof set.xp === "number") allowedSet.xp = set.xp;
+    if (typeof set.level === "number") allowedSet.level = set.level;
+    if (typeof set.unspentPoints === "number") allowedSet.unspentPoints = set.unspentPoints;
 
-    // 1) Update the document
+    if (Object.keys(allowedSet).length > 0) update.$set = allowedSet;
+
+    const filter = { _id: new ObjectId(req.params.id) };
+
     const r = await db.collection('cat').updateOne(filter, update);
+    if (r.matchedCount === 0) return res.status(404).json({ message: 'Cat not found' });
 
-    if (r.matchedCount === 0) {
-      return res.status(404).json({ message: 'Cat not found' });
-    }
-
-    // 2) Return the updated record
     const doc = await db.collection('cat').findOne(filter);
     return res.json(doc);
   } catch (err) {
@@ -146,5 +144,50 @@ router.patch('/:id/progress', async (req, res) => {
     return res.status(500).json({ message: 'Internal error' });
   }
 });
+
+// PATCH /api/cat/:id/allocate
+router.patch('/:id/allocate', async (req, res) => {
+  try {
+    const db = req.app.get('db');
+
+    const userId = String(res.locals.oauth?.token?.user?.user_id || '').trim();
+    if (!userId) return res.status(401).json({ message: 'Not authenticated' });
+
+    const { statKey, delta = 1 } = req.body || {};
+    const allowed = ['clawPower', 'zoomSpeed', 'furDensity', 'cuteness', 'chaosLuck'];
+
+    if (!allowed.includes(statKey)) {
+      return res.status(400).json({ message: 'Invalid statKey' });
+    }
+
+    const filter = { _id: new ObjectId(req.params.id) };
+
+    // first read cat to ensure points available
+    const cat = await db.collection('cat').findOne(filter);
+    if (!cat) return res.status(404).json({ message: 'Cat not found' });
+
+    const points = cat.unspentPoints ?? 0;
+    if (points <= 0) {
+      return res.status(400).json({ message: 'No unspent points' });
+    }
+
+    const update = {
+      $inc: {
+        [`stats.${statKey}`]: delta,
+        unspentPoints: -1,
+      },
+    };
+
+    await db.collection('cat').updateOne(filter, update);
+
+    const updated = await db.collection('cat').findOne(filter);
+    return res.json(updated);
+  } catch (err) {
+    console.error('Allocate error:', err);
+    return res.status(500).json({ message: 'Internal error' });
+  }
+});
+
+
 
 export default router;

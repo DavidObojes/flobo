@@ -13,6 +13,7 @@ export type Cat = {
   name: string;
   imageUrl: string;
   stats: CatStats;
+  unspentPoints?: number;
   xp: number;
   level: number;
   wins: number;
